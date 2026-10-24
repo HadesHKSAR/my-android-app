@@ -41,9 +41,6 @@ android.api = 33
 # Minimum API your APK will support.
 android.minapi = 21
 
-# 1. 將 p4a 版本鎖死（避開出事的 Python 3.14）
-p4a.branch = release-2024.09.1
-
 # Android NDK version to use
 android.ndk = 25b
 
