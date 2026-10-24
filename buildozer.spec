@@ -17,6 +17,7 @@ source.include_exts = py,png,jpg,kv,atlas
 
 # (list) Application requirements
 # comma separated e.g. requirements = sqlite3,kivy
+Ini, TOML
 requirements = python3,kivy
 
 # (str) Supported orientations
