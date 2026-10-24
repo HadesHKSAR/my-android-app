@@ -9,6 +9,9 @@ package.name = smartsteward
 # (str) Package domain (needed for android packaging)
 package.domain = org.example
 
+# === 關鍵：請確保這裡有設定版本 ===
+version = 0.1
+
 # (str) Source files where the let's go (relative to directory of spec)
 source.dir = .
 
