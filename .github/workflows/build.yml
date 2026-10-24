@@ -21,19 +21,22 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 3. 修正後的系統依賴安裝（加入防卡死與非互動參數）
+      # 3. 修正後的系統依賴安裝（加入 universe 庫支援以避免套件找不到）
       - name: Install System Dependencies
         run: |
           echo "=== 停止背景自動更新，釋放 apt 鎖 ==="
           sudo systemctl stop unattended-upgrades || true
           sudo killall apt apt-get dpkg || true
           
-          echo "=== 開始安裝系統依賴 ==="
+          echo "=== 啟用 universe 庫並更新套件 ==="
+          sudo add-apt-repository universe -y
           export DEBIAN_FRONTEND=noninteractive
           sudo apt-get update -y
+          
+          echo "=== 開始安裝系統依賴 ==="
           sudo apt-get install -y --no-install-recommends \
               git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
-              zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 \
+              zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 \
               cmake libffi-dev libssl-dev build-essential
 
       # 4. 升級 pip 並安裝 Cython 與 Buildozer
