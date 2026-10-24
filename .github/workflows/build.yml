@@ -5,6 +5,7 @@ on:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
+  workflow_dispatch: # 支援在 GitHub 網頁手動點擊按鈕觸發打包
 
 jobs:
   build-android:
@@ -21,7 +22,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 3. 修正後的系統依賴安裝（加入 universe 庫支援以避免套件找不到）
+      # 3. 安裝系統依賴
       - name: Install System Dependencies
         run: |
           echo "=== 停止背景自動更新，釋放 apt 鎖 ==="
@@ -45,12 +46,41 @@ jobs:
           python -m pip install --upgrade pip
           pip install --upgrade cython==0.29.36 buildozer
 
-      # 5. 執行 Buildozer 打包 Android Debug APK
+      # 5. 【自動化核心】每次構建自動將版本號 +0.1
+      - name: Auto Increment Version
+        run: |
+          python -c "
+          import re
+          with open('buildozer.spec', 'r', encoding='utf-8') as f:
+              content = f.read()
+          
+          match = re.search(r'^version\s*=\s*(.*)', content, re.M)
+          if match:
+              old_ver = match.group(1).strip()
+              print(f'當前版本號: {old_ver}')
+              try:
+                  parts = old_ver.split('.')
+                  major = int(parts[0])
+                  minor = int(parts[1]) + 1
+                  if minor >= 10:
+                      major += 1
+                      minor = 0
+                  new_ver = f'{major}.{minor}'
+              except:
+                  new_ver = '1.1'
+              
+              content = content.replace(match.group(0), f'version = {new_ver}')
+              with open('buildozer.spec', 'w', encoding='utf-8') as f:
+                  f.write(content)
+              print(f'已自動更新版本號為: {new_ver}')
+          "
+
+      # 6. 執行 Buildozer 打包 Android Debug APK
       - name: Build with Buildozer
         run: |
           buildozer android debug
 
-      # 6. 上傳產出的 APK 檔案供下載
+      # 7. 上傳產出的 APK 檔案供下載
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
