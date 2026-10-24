@@ -21,11 +21,17 @@ jobs:
         with:
           python-version: '3.10'
 
-      # 3. 安裝 Buildozer 所需的系統依賴套件（使用 ubuntu-22.04 原生支援的源）
+      # 3. 修正後的系統依賴安裝（加入防卡死與非互動參數）
       - name: Install System Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
+          echo "=== 停止背景自動更新，釋放 apt 鎖 ==="
+          sudo systemctl stop unattended-upgrades || true
+          sudo killall apt apt-get dpkg || true
+          
+          echo "=== 開始安裝系統依賴 ==="
+          export DEBIAN_FRONTEND=noninteractive
+          sudo apt-get update -y
+          sudo apt-get install -y --no-install-recommends \
               git zip unzip openjdk-17-jdk autoconf libtool pkg-config \
               zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 \
               cmake libffi-dev libssl-dev build-essential
